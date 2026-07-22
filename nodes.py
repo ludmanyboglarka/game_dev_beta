@@ -135,7 +135,7 @@ def fit_models(data, model_type):
         # fit the model
         with warnings.catch_warnings(record = True) as caught: 
             warnings.simplefilter("always")
-            intercept_slope_fit = intercept_slope_fit.fit(method = "lbfgs")
+            intercept_slope_fit = lmm_intercept_slope.fit(method = "lbfgs") # There was an incorrect reference here 
             intercept_slope_fit.converged_cleanly = (len(caught) == 0)
             # intercept_slope_fit = converged_cleanly
         # return only the fitted object

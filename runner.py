@@ -1,5 +1,6 @@
 #' RUNNER FOR THE MULTIVERSE ANALYSIS
 
+import csv
 import pandas as pd
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
@@ -10,6 +11,7 @@ from nodes import transform_rt
 from nodes import extract_results
 
 data = pd.read_csv("raw_1.csv").query("rt > 150")
+
 
 #' Defining the decision nodes, and the decision options 
 outlier_options = [
@@ -54,10 +56,10 @@ for method, threshold in outlier_options:
 for r in results: 
     coef = r['coeff']
     p = r['p_value']
-    R2_m = r['R2_marg'], 
+    R2_m = r['R2_marg'] ,
     R2_c = r['R2_cond']
 
-    results = print(
+print(
         f"{r['outlier_method']}, {r['threshold']}, {r['transformed']}, {r['model']} | "
         f"coef = {coef if coef is None 
                   else round(coef, 4)}, "
@@ -67,6 +69,9 @@ for r in results:
         f"R2_m = {r['R2_marg']}, "  
         f"R2_c = {r['R2_cond']} "
     )
+print(results)
+
+pd.DataFrame(results).to_csv("results.csv", index=False)
 
 ## TODO: STORE RESULTS IN A DESIGNATED OBJECT - DATA FRAME, .CSV THAT CAN BE USED LATER 
 # miert kulonbozik ugyanaz a modell, de r-ben? miert mas a p-ertek?  

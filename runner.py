@@ -30,13 +30,19 @@ for method, threshold in outlier_options:
     for t in transform: 
         for model in model_types:
 
-            d1 = apply_outliers(data, method, threshold)
-            d2 = transform_rt(d1, t)
-            fit = fit_models(d2, model)
-
-            res = extract_results(fit)
-
-
+            try: 
+                d1 = apply_outliers(data, method, threshold)
+                d2 = transform_rt(d1, t)
+                fit = fit_models(d2, model)
+                res = extract_results(fit)
+                res["error"] = None
+            except Exception as e: 
+                res = {
+                    "coeff": None, "p_value": None,
+                    "R2_marg": None, "R2_cond": None,
+                    "n_obs": None, "error": str(e)
+                }
+            
             results.append({
                 "outlier_method": method, 
                 "threshold": threshold, 
@@ -63,4 +69,4 @@ for r in results:
     )
 
 ## TODO: STORE RESULTS IN A DESIGNATED OBJECT - DATA FRAME, .CSV THAT CAN BE USED LATER 
-# miert kulonbozik ugyanaz a modell, de r-ben? miert mas a p-ertek? 
+# miert kulonbozik ugyanaz a modell, de r-ben? miert mas a p-ertek?  

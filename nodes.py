@@ -4,9 +4,10 @@ import pandas as pd
 import numpy as np
 import statsmodels.api as sm
 import statsmodels.formula.api as smf
+import warnings
 
 raw_data = pd.read_csv("raw_1.csv")
-print(raw_data.head())
+## print(raw_data.head()) - only for testing purposes
 
 #' ----------------------------------------------
 #' NODE 1: OUTLER EXCLUSION
@@ -115,7 +116,10 @@ def fit_models(data, model_type):
         )
 
         # fit the model
-        intercept_fit = lmm_intercept.fit(method = "lbfgs") # still not sure what lbfgs does better
+        with warnings.catch_warnings(record=True) as caught:
+            warnings.simplefilter("always")
+            intercept_fit = lmm_intercept.fit(method = "lbfgs")
+            intercept_fit.converged_cleanly = (len(caught) == 0)
         
         return intercept_fit
     
@@ -129,8 +133,12 @@ def fit_models(data, model_type):
         )
 
         # fit the model
-        intercept_slope_fit = lmm_intercept_slope.fit(method = "lbfgs")
-        
+        with warnings.catch_warnings(record = True) as caught: 
+            warnings.simplefilter("always")
+            intercept_slope_fit = intercept_slope_fit.fit(method = "lbfgs")
+            intercept_slope_fit.converged_cleanly = (len(caught) == 0)
+            # intercept_slope_fit = converged_cleanly
+        # return only the fitted object
         return intercept_slope_fit
     
     elif model_type == "lmm-full":
@@ -141,12 +149,15 @@ def fit_models(data, model_type):
             groups = model_data["subj_code"], 
             re_formula = "~ congruency * prev_congruency" # random slope is the currect trial congruency
         )
-        # fit full lmm model
-        lmm_full_fit = lmm_full.fit(method = "lbfgs")
-    
+        # fit full lmm model    
+        with warnings.catch_warnings(record = True) as caught: 
+            warnings.simplefilter("always")
+            lmm_full_fit = lmm_full.fit(method = "lbfgs")
+            lmm_full_fit.converged_cleanly = (len(caught) == 0)
+            # lmm_full_fit.converged_cleanly = converged_cleanly
         # return only the fitted object
         return lmm_full_fit
-    
+
     else:
         raise ValueError(f"Unknown model_type: {model_type}")
     
@@ -214,3 +225,21 @@ def extract_results(model):
         "R2_cond": r2_conditional, 
         "n_obs": model.nobs
     }
+
+## TODO: 
+## - mixed linear model: the MLE may be on the boundary of the parameter space 
+## - convergencewarning: random effects covariance is singular
+## the random effects covariance matrix is singluar
+## the hessian matrix at the estimated parameter values is not positive definite
+## ---- 
+
+## ezek mind csak az ertelmezesben birnak jelentoseggel: 
+# random effects covariance is singular: egy vagy tobb random effectnek a varianciaja 0, vagy a random slopeok es interceptek teljesen korrelalnak (r = +-1). ez lehet overfitting, tul komplex a modell, vagy az adatban nincs eleg variancia. ez a modell/adat hibaja, egyszeruen nem megfelelo a modell ehhez az adathoz. 
+
+## File "C:\Users\user\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\statsmodels\regression\mixed_linear_model.py", line 2501, in random_effects
+## -> cov_re_inv = np.linalg.inv(self.cov_re)
+## File "C:\Users\user\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\numpy\linalg\_linalg.py", line 648, in inv
+## -> ainv = _umath_linalg.inv(a, signature=signature)
+
+## File "C:\Users\user\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\numpy\linalg\_linalg.py", line 145, in _raise_linalgerror_singular
+## -> raise LinAlgError("Singular matrix") numpy.linalg.LinAlgError: Singular matrix

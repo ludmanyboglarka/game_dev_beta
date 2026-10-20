@@ -11,9 +11,9 @@ raw_data = pd.read_csv("raw_1.csv")
 
 #' ----------------------------------------------
 #' NODE 1: OUTLER EXCLUSION
-#' Parameters: method can be based on standard deviation or accuracy
-#' Threshold: in case of accuracy-based filtering, can be 0.7 or 0.8, in case of standard deviation-based filtering, +-3 or +-2 SD from the conditional mean
-#' Return: two possible outcomes
+#' parameters: method can be based on standard deviation or accuracy
+#' threshold: in case of accuracy-based filtering, can be 0.7 or 0.8, in case of standard deviation-based filtering, +-3 or +-2 SD from the conditional mean
+#' return: two possible outcomes
 #' ----------------------------------------------
 def apply_outliers(data, method, threshold):
 

@@ -85,6 +85,7 @@ data_st1 = raw_data %>%
 
 parameters(game)
 ```
+
 ```{r}
 # TODO: solve summarise() regroup warning -> output grouped by ThreadId, summaries grouped by ThreadId and Id
 ```
@@ -96,7 +97,7 @@ parameters(game)
 
 ```{multiverse default-m-2, inside = game}
 data_variables = data_st1 %>%  
-  select(branch(dv_iv,
+  dplyr::select(branch(dv_iv,
     "ContributionsbyAuthor_UniqueFemaleContributors" %when% (level == "participant") ~
       c(ThreadId, Id, Type, ContributionsbyAuthor, UniqueFemaleContributors, UniqueMaleContributors),
     "ContributionsbyAuthor_UniqueFemaleParticipation" %when% (level == "participant") ~
@@ -155,7 +156,7 @@ df_expand = multiverse::expand(game)
 #' Execute multiverse, storing results
 
 ```{r}
-execute_multiverse(game, progress = TRUE)
+multiverse::execute_multiverse(game, progress = TRUE)
 
 results_n4 = extract_variables(game, data_filtered2)
 
@@ -337,7 +338,6 @@ capture_fit <- function(expr) {
 # Convert a model summary into text for a CSV cell
 summary_to_text <- function(model) {
   if (is.null(model)) return(NA_character_)
-
   paste(
     capture.output(print(summary(model))),
     collapse = "\n"
